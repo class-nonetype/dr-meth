@@ -4,11 +4,14 @@ import time
 from typing import Callable
 from playwright.async_api import async_playwright, Playwright, Page
 
+key = 'MjZmZWU0MTEtNWE5NC00MjM0LWEwN2YtOGNmMjE1Y2I1ZDQxfEFub258N3w2NzAwMzg3MDM3ODM3fDQxMTI2MjEzNTAyfDEsOXw1MDAwMDAwMDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDF8MTAwfDB8MHwwfDB8MHwxfDk1NjUxMTd8MXwxfDB8MXwwfDF8MXwxfDF8MXwxfDF8MXwxfDF8MXwxfDB8MHwwfDB8MHwwfDB8MHwyNTg3NjY4NDE5OTE2NHw0MTc1OTgxMzM4Nzd8NDkyfDB8NTAwMDAwMDAwfDE4ODk5NDB8MHwxfDB8MXwxfDB8MXwxfDF8MHwwfDF8MXwxfDB8MHwxfDF8MXwwfDF8MXwxfDF8MHwxfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwfDB8MHwxNzY4NjA0MTQzNjIwfDA='
+
 execution_path = Path(__file__).parent.absolute()
 key_file_path = Path(execution_path / 'string.txt').absolute()
 if not key_file_path.exists():
+    key = ''
     key_file_writer = open(file=key_file_path, mode='w', encoding='utf-8')
-    key_file_writer.write('')
+    key_file_writer.write(key)
 
 key_file_reader = open(file=key_file_path, mode='r', encoding='utf-8')
 key = key_file_reader.read()
@@ -69,7 +72,7 @@ async def export_game():
             await dialog.accept()
         
         print(string, flush=True)
-        
+
         with open(key_file_path, mode="w", encoding="utf-8") as key_file_writer:
             key_file_writer.write(string)
         
@@ -112,16 +115,12 @@ async def run(playwright: Playwright):
     while True:
 
         await do(action=import_game, save_string=key)
-
         await do(action=change_tab, option=2)
         await do(action=buy_something, sequence=2, option='B1', option_has_button=False, click_count=1000)
         await do(action=save_game)
         await do(action=export_game)
-        
-        print('page.pause()')
-        
-        await page.pause()
 
+        exit()
 
 async def main():
     async with async_playwright() as playwright:
