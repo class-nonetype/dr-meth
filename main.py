@@ -44,6 +44,10 @@ async def buy_something(**kwargs):
 
 
 
+async def stop_dealers(**kwargs):
+    await page.locator("iframe").content_frame.locator("#OPTS1 #button").click()
+
+
 async def change_tab(**kwargs):
     option = kwargs['option']
     tab = page.locator("iframe").content_frame.locator(f"#TABS{option}")
@@ -70,8 +74,6 @@ async def export_game():
             await dialog.accept(dialog.default_value)
         else:
             await dialog.accept()
-        
-        print(string, flush=True)
 
         with open(key_file_path, mode="w", encoding="utf-8") as key_file_writer:
             key_file_writer.write(string)
@@ -91,8 +93,15 @@ async def save_game():
 
 async def do(action: Callable, sequence: (int | float) = None, **kwargs):
     if sequence is not None:
+        start_time = time.monotonic()
         end_time = time.monotonic() + sequence * 60
+        last_print = -1
         while time.monotonic() < end_time:
+            elapsed = int(time.monotonic() - start_time)
+            remaining = max(0, int(end_time - time.monotonic()))
+            if elapsed != last_print:
+                print(f'[loop]\t{elapsed}s, {remaining}s', flush=True)
+                last_print = elapsed
             await action(**kwargs)
     else:
         await action(**kwargs)
@@ -102,7 +111,7 @@ async def run(playwright: Playwright):
     global browser
     global page
 
-    url = "https://drmeth.com/"
+    url = 'https://drmeth.com/'
     
     properties = {
         'headless': False,
@@ -112,20 +121,32 @@ async def run(playwright: Playwright):
     page = await browser.new_page()
     await page.goto(url)
 
-    while True:
+    try:
+        while True:
 
-        await do(action=import_game, save_string=key)
-        await do(action=change_tab, option=2)
-        await do(action=buy_something, sequence=2, option='B1', option_has_button=False, click_count=1000)
-        await do(action=save_game)
-        await do(action=export_game)
+            await do(action=import_game, save_string=key)
+            
+            await do(action=change_tab, option=2)
+            await do(action=buy_something, sequence=15, option='B1', option_has_button=False, click_count=1000)
+            await do(action=stop_dealers)
+            await do(action=save_game)
+            await do(action=export_game)
 
-        exit()
+            exit()
+    except (asyncio.CancelledError, KeyboardInterrupt):
+        current_page = globals().get("page")
+        if current_page is not None and not current_page.is_closed():
+            await do(action=stop_dealers)
+            await do(action=save_game)
+            await do(action=export_game)
 
 async def main():
     async with async_playwright() as playwright:
-        await run(playwright)
+        try:
+            await run(playwright)
+        except (asyncio.CancelledError, KeyboardInterrupt):
+            pass
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
