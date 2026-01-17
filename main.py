@@ -2,9 +2,12 @@ import asyncio
 from pathlib import Path
 import time
 from typing import Callable
-from playwright.async_api import async_playwright, Playwright, Page
+from playwright.async_api import async_playwright, Playwright
 
-key = 'MjZmZWU0MTEtNWE5NC00MjM0LWEwN2YtOGNmMjE1Y2I1ZDQxfEFub258N3w2NzAwMzg3MDM3ODM3fDQxMTI2MjEzNTAyfDEsOXw1MDAwMDAwMDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDF8MTAwfDB8MHwwfDB8MHwxfDk1NjUxMTd8MXwxfDB8MXwwfDF8MXwxfDF8MXwxfDF8MXwxfDF8MXwxfDB8MHwwfDB8MHwwfDB8MHwyNTg3NjY4NDE5OTE2NHw0MTc1OTgxMzM4Nzd8NDkyfDB8NTAwMDAwMDAwfDE4ODk5NDB8MHwxfDB8MXwxfDB8MXwxfDF8MHwwfDF8MXwxfDB8MHwxfDF8MXwwfDF8MXwxfDF8MHwxfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwfDB8MHwxNzY4NjA0MTQzNjIwfDA='
+
+
+
+key = 'MjZmZWU0MTEtNWE5NC00MjM0LWEwN2YtOGNmMjE1Y2I1ZDQxfEFub258N3wyMTE1NTY4OTUzNzgzNnwxMzM2MzU3NTEzNTAyfDEsMTF8NTAwMDAwMDAwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDF8MXwwfDF8ODcyNzcxMTJ8MXwxfDB8MXwwfDF8MXwxfDF8MXwxfDF8MXwxfDF8MXwxfDB8MHwwfDB8MHwwfDB8MHwxNzgxODc5ODQxOTkxNjR8MzYyMTkyNDQzMzg3N3w3MjF8MHw1MDAwMDAwMDB8MTg4OTk0MHwwfDF8MHwxfDF8MHwxfDF8MXwxfDB8MXwxfDF8MHwwfDF8MXwxfDB8MXwxfDF8MXwwfDF8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MHwwfDB8MCwwLDAsMCwwLDAsMCwwLDAsMCwwLDB8MHwwfDE3Njg2MzU3ODk4Nzh8MA=='
 
 execution_path = Path(__file__).parent.absolute()
 key_file_path = Path(execution_path / 'string.txt').absolute()
@@ -133,12 +136,11 @@ async def run(playwright: Playwright):
             await do(action=export_game)
 
             exit()
+
     except (asyncio.CancelledError, KeyboardInterrupt):
-        current_page = globals().get("page")
-        if current_page is not None and not current_page.is_closed():
-            await do(action=stop_dealers)
-            await do(action=save_game)
-            await do(action=export_game)
+        await do(action=stop_dealers)
+        await do(action=save_game)
+        await do(action=export_game)
 
 async def main():
     async with async_playwright() as playwright:
